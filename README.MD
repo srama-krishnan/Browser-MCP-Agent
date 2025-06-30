@@ -2,6 +2,9 @@
 
 This project showcases a multi-capable browser automation agent powered by Puppeteer and OpenAI, deployed through a responsive Streamlit interface. It supports tasks like navigating to websites, clicking elements, extracting structured content, summarizing information, and handling complex multi-step actions.
 
+![alt text](image.png)
+
+![alt text](image-1.png)
 ---
 
 ## 🚀 Features
