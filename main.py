@@ -29,3 +29,15 @@ with st.sidebar:
     st.caption("The agent uses puppeteer to control the browser")
 
 query = st.text_area("Your command", placeholder="Ask the agent to navigate to websites and interact with them")
+
+if 'initialized' not in st.session_state:
+    st.session_state.initialized = False
+    st.session_state.mcp_app = MCPApp(name="streamlit_mcp_agent")
+    st.session_state.mcp_context = None
+    st.session_state.mcp_agent_app = None
+    st.session_state.browser_agent = None
+    st.session_state.llm = None
+    st.session_state.loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(st.session_state.loop)
+
+
