@@ -40,4 +40,50 @@ if 'initialized' not in st.session_state:
     st.session_state.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(st.session_state.loop)
 
+async def setup_agent():
+    if not st.session_state.initialized:
+        try:
+            st.session_state.mcp_context = st.session_state.mcp_app.run()
+            st.session_state.mcp_agent_app = await st.session_state.context.__aenter__()
+            st.session_state.browser_agent = Agent(
+                name= "Browser",
+                instruction="""You are a helpful web browsing assistant that can interact with websites using puppeteer.
+                - Navigate to websites and perform browser actions (click, scroll, type)
+                - Extract information from web pages
+                - Take screenshots of page elements when useful
+                - Provide concise summaries of web content using markdown
+                - Follow multi-step browsing sequences to complete tasks
+                """,
+                server_names=["puppeteer"]
+            )
+            await st.session_state.browser_agent.initialize()
+            st.session_state.llm = await st.session_state.browser_agent.attach_llm(OpenAIAugmentedLLM)
 
+            logger = st.session_state.mcp_agent_app.logger
+            tools = st.session_state.browser_agent.list_tools()
+            logger.info("Tools available: ",data=tools)
+            
+            st.session_state.initialized = True
+        except Exception as e:
+            return f"Error During Initialization: {str(e)}"
+    return None
+
+async def run_mcp_agent(message):
+    if not os.getenv("APIKEY"):
+        return "Error: No API KEY"
+    try:
+        error = setup_agent()
+        if error:
+            return error
+        res = await st.session_state.llm.generate_str(
+            message=message,
+            request_params = RequestParams(use_history=True)
+        )
+        return res
+    except Exception as e:
+        return f"Error: {str(e)}"
+    if st.button("Run Command", type="primary",use_container_width=True):
+        with st.spinner("Processing your result...."):
+            res = st.session_state.loop.run_until_complete(run_mcp_agent(query))
+        st.markdown("## Response")
+        st.markdown(res)
