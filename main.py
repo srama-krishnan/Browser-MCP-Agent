@@ -2,11 +2,14 @@ import asyncio
 import os
 import streamlit as st
 from textwrap import dedent
+from dotenv import load_dotenv
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
+
+load_dotenv()
 
 st.set_page_config(page_title="Browser MCP Agent", layout="wide")
 
@@ -69,7 +72,7 @@ async def setup_agent():
     return None
 
 async def run_mcp_agent(message):
-    if not os.getenv("APIKEY"):
+    if not os.getenv("API_KEY"):
         return "Error: No API KEY"
     try:
         error = setup_agent()
